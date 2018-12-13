@@ -3,9 +3,11 @@ package adventofcode2018;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -75,10 +77,29 @@ public class Day10 {
 			allPoints.add(new Point(line));
 		}
 		
-		// TODO find minimal distance between points
-		// its 10710
+		// find minimal distance between 2 points
+		Point point = allPoints.get(0);
+		Point point2 = allPoints.get(100);
+		long min = 1000000;
+		int minIndex = 0;
 		
-		for (int i = 0; i < 10710; i++) {
+		for (int i = 0; i < 11000; i++) {
+			long x = point.x - point2.x;
+			long y = point.y - point2.y;
+
+			
+			long distance = x*x + y*y;
+			if(distance < min) {
+				min = distance;
+				minIndex = i;
+			}
+			point.tick();
+			point2.tick();
+		}
+		
+		System.out.println(minIndex);
+		
+		for (int i = 0; i < minIndex; i++) {
 			Iterator<Point> iterator = allPoints.iterator();
 			while(iterator.hasNext()) {
 				iterator.next().tick();
