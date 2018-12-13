@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 
 public class Day10 {
 
-	public static class Points extends JPanel {
+	public static class PointsPlot extends JPanel {
 
 		private List<Point> allPoints;
 		
@@ -34,7 +34,7 @@ public class Day10 {
 			}
 		  }
 
-		  public Points(List<Point> points) {
+		  public PointsPlot(List<Point> points) {
 			  allPoints = points;
 		    JFrame frame = new JFrame("Points");
 		    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -105,10 +105,7 @@ public class Day10 {
 				iterator.next().tick();
 			}
 		}
-		
-		new Points(allPoints);
-		System.out.println();
-		
+		new PointsPlot(allPoints);
 	}
 	
 	private final static String input = "position=<-42601, -53357> velocity=< 4,  5>\n" + 
