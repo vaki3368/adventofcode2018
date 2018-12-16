@@ -83,6 +83,7 @@ public class Day7 {
 	}
 	
 	private static class Worker {
+
 		private int counter = 0;
 		private String work;
 		public void start(String l) {
@@ -99,6 +100,7 @@ public class Day7 {
 	
 	private static class Dispatcher {
 		private List<Worker> worker = new ArrayList<>();
+		private int ticks = 0;
 		
 		public Dispatcher(int workerCount) {
 			for (int i = 0; i < workerCount; i++) {
@@ -106,17 +108,44 @@ public class Day7 {
 			}
 		}
 		
-		public String work(List<String> first) {
-			Iterator<String> iterator = first.iterator();
-			while(iterator.hasNext()) {
-				String next = iterator.next();
-				if(!worker.contains(next)) {
-					
-				}
+		private Worker getIdleWorker() {
+			for (Worker w : worker) {
+				if(w.counter == 0)
+					return w;
 			}
-			return "";
+			return null;
 		}
 		
+		public String work(List<String> first) {
+			Iterator<String> iterator = first.iterator();
+			while (iterator.hasNext()) {
+				String next = iterator.next();
+				
+				boolean alreadyQueued = false;
+				for (Worker w : worker) {
+					if (w.counter != 0 && w.work.equals(next)) {
+
+						alreadyQueued = true;
+					}
+				} 
+				
+				if(!alreadyQueued)
+				    getIdleWorker().start(next);
+				
+
+			}
+
+			while (true) {
+				ticks++;
+				for (Worker w : worker) {
+					if (w.counter != 0) {
+						if (w.tick()) {
+							return w.work;
+						}
+					}
+				} 
+			}
+		}
 
 	}
 	
@@ -146,16 +175,16 @@ public class Day7 {
 			});
 			Collections.sort(first);
 			System.out.println(first);
-			dispatcher.work(first);
+
 			
-			String key = first.get(0);
+			String key = dispatcher.work(first);
 			result += key;
 			inputDeps.remove(key);
 			inputDeps.forEach( (k, v) -> {
 				v.remove(key);
 			});
 		}
-		System.out.println(result);	
+		System.out.println(dispatcher.ticks);	
 	}
 
 	private static final String input = 
