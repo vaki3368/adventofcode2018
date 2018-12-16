@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,14 +79,83 @@ public class Day7 {
 		}
 		System.out.println(result);
 
-		while(result.length() != 0) {
-			String current = result.substring(0, 1);
+		part2();
+	}
+	
+	private static class Worker {
+		private int counter = 0;
+		private String work;
+		public void start(String l) {
+			this.work = l;
+			this.counter = l.charAt(0) - 4;
 			
+		}
+		
+		public boolean tick() {
+			counter--;
+			return counter == 0;
 		}
 	}
 	
-	public static void part2() {
+	private static class Dispatcher {
+		private List<Worker> worker = new ArrayList<>();
+		
+		public Dispatcher(int workerCount) {
+			for (int i = 0; i < workerCount; i++) {
+				worker.add(new Worker());
+			}
+		}
+		
+		public String work(List<String> first) {
+			Iterator<String> iterator = first.iterator();
+			while(iterator.hasNext()) {
+				String next = iterator.next();
+				if(!worker.contains(next)) {
+					
+				}
+			}
+			return "";
+		}
+		
+
+	}
 	
+	public static void part2() {
+		String[] lines = input.split("\\n");
+		Map<String, List<String>> inputDeps = new HashMap<>();
+		
+		for (int i = 0; i < lines.length; i++) {
+			String[] inputLetters = lines[i].replace("Step ", "").replace(" must be finished before step", "")
+					.replace(" can begin.", "").split(" ");
+			
+			inputDeps.putIfAbsent(inputLetters[1], new ArrayList<>());		
+			inputDeps.get(inputLetters[1]).add(inputLetters[0]);					
+			inputDeps.putIfAbsent(inputLetters[0], new ArrayList<>());
+		}
+
+		String result = "";
+		
+		Dispatcher dispatcher = new Dispatcher(5);
+		
+		while(inputDeps.size() != 0) {
+			List<String> first = new ArrayList<>();
+			inputDeps.forEach( (k, v) -> {
+				if (v.isEmpty()) {
+					first.add(k);
+				}
+			});
+			Collections.sort(first);
+			System.out.println(first);
+			dispatcher.work(first);
+			
+			String key = first.get(0);
+			result += key;
+			inputDeps.remove(key);
+			inputDeps.forEach( (k, v) -> {
+				v.remove(key);
+			});
+		}
+		System.out.println(result);	
 	}
 
 	private static final String input = 
