@@ -21,13 +21,9 @@ public class Day11 {
 		int maxSquareSize  = 1;
 		int x = 1;
 		int y = 1;
-		//int size = 3;
-		
-		
-		
+
 		for (int mSize = 1; mSize < 301; mSize++) {
 			for (int i = 1; i < matrix.length - mSize - 1; i++) {
-				// iterate over Y
 				for (int j = 1; j < matrix[i].length - mSize - 1; j++) {
 
 					int localPower = 0;

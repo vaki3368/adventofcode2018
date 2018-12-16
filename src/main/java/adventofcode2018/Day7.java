@@ -32,11 +32,11 @@ public class Day7 {
 			letter = string;
 		}
 		private String letter;
-		List<String> next = new LinkedList<>();
+		String next = "";
 		
 		@Override
 		public int compareTo(Dep o) {
-			return next.contains(o.letter) ? -1 : 1;
+			return next.compareTo(o.next);
 		}
 
 	}
@@ -45,14 +45,7 @@ public class Day7 {
 	
 	public static void main(String[] args) {
 		String[] lines = input.split("\\n");
-		Arrays.sort(lines);
-		
-
-		final List<String> alphabet = IntStream.range('A', 'Z').mapToObj(i -> Character.toString((char) i))
-				.collect(Collectors.toList());
-		//recursive(new ArrayList<>(Arrays.asList(lines)), alphabet);
-
-		Map<String, Dep> inputDeps = new HashMap<>();
+		Map<String, List<String>> inputDeps = new HashMap<>();
 		
 		MutableGraph<String> graph = GraphBuilder.directed().build();
 		
@@ -60,97 +53,39 @@ public class Day7 {
 			String[] inputLetters = lines[i].replace("Step ", "").replace(" must be finished before step", "")
 					.replace(" can begin.", "").split(" ");
 			
-			
-			inputDeps.putIfAbsent(inputLetters[0], new Dep(inputLetters[0]));
-			
-			inputDeps.get(inputLetters[0]).next.add(inputLetters[1]);
-			
-
-			
-			System.out.println(inputLetters[0] + " -> " + inputLetters[1]);
-
+			inputDeps.putIfAbsent(inputLetters[1], new ArrayList<>());		
+			inputDeps.get(inputLetters[1]).add(inputLetters[0]);					
+			inputDeps.putIfAbsent(inputLetters[0], new ArrayList<>());
 			
 			graph.putEdge(inputLetters[0], inputLetters[1]);
-
 		}
-		
-		//list.forEach(System.out::print);
-		
-		//inputDeps.sort();
-		//Collections.sort(inputDeps);
-		//inputDeps.forEach(System.out::println);
-		List<Dep> deps = new ArrayList<>(inputDeps.values());
-		Collections.sort(deps);
-		//deps.forEach(System.out::print);
-		
-		
 
-		Set<String> found = new LinkedHashSet<>();
-		
-		//while (found == null) {
-			
-			alphabet.forEach(e -> {
-
-				if (graph.successors(e).size() == 0) {
-
-					found.add(e);
-					//alphabet.addAll(graph.predecessors(e));
+		String result = "";
+		while(inputDeps.size() != 0) {
+			List<String> first = new ArrayList<>();
+			inputDeps.forEach( (k, v) -> {
+				if (v.isEmpty()) {
+					first.add(k);
 				}
-				System.out.println(e + " - " + graph.predecessors(e) + " - " + graph.successors(e));
-
 			});
-		//}
-		
-		//graph.
-		
-		Traverser.forGraph(graph).breadthFirst(Arrays.asList("B","E", "U", "V")).forEach(System.out::print);
-		System.out.println();
-//		Traverser.forGraph(graph).depthFirstPreOrder(Arrays.asList("B","E", "U", "V")).forEach(System.out::print);
-//		
-//		System.out.println();
-//		Traverser.forGraph(graph).depthFirstPostOrder(Arrays.asList("B","E", "U", "V")).forEach(System.out::print);
-		
-		List<String> proof = new ArrayList((Collection) Traverser.forGraph(graph).breadthFirst(Arrays.asList("B","E", "U", "V")));
-		for (int i = 0; i < lines.length; i++) {
-			String[] inputLetters = lines[i].replace("Step ", "").replace(" must be finished before step", "")
-					.replace(" can begin.", "").split(" ");
+			Collections.sort(first);
+			String key = first.get(0);
+			result += key;
+			inputDeps.remove(key);
+			inputDeps.forEach( (k, v) -> {
+				v.remove(key);
+			});
+		}
+		System.out.println(result);
+
+		while(result.length() != 0) {
+			String current = result.substring(0, 1);
 			
 		}
-		
-		
 	}
-
-	public static void recursive(List<String> _lines, List<String> _alphabet) {
-		MutableGraph<String> graph = GraphBuilder.directed().build();
-		
-		List<String> lines = new ArrayList<>(_lines);
-		List<String> alphabet = new ArrayList<>(_alphabet);
-
-		for (String line : lines) {
-			String[] inputLetters = line.replace("Step ", "").replace(" must be finished before step", "")
-					.replace(" can begin.", "").split(" ");
-			graph.putEdge(inputLetters[0], inputLetters[1]);
-
-		}
-
-		Set<String> found = new LinkedHashSet<>();
-
-		alphabet.forEach(e -> {
-
-			if (graph.predecessors(e).size() == 0) {
-
-				found.add(e);
-				System.out.println(e);
-			}
-		});
-		
-		alphabet.removeAll(found);
-
-		found.forEach(e -> {
-			System.out.println(lines.removeIf(l -> l.contains("Step " + e)));
-		});
-		recursive(lines, alphabet);
-
+	
+	public static void part2() {
+	
 	}
 
 	private static final String input = 
