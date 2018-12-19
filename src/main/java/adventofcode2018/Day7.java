@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.junit.internal.builders.AllDefaultPossibilitiesBuilder;
+
 import com.google.common.collect.Lists;
 import com.google.common.graph.ElementOrder;
 import com.google.common.graph.Graph;
@@ -23,27 +25,75 @@ import com.google.common.graph.Traverser;
 
 public class Day7 {
 	
-	private static class Dep implements Comparable<Dep> {
-		@Override
-		public String toString() {
-			return "Dep [letter=" + letter + ", next=" + next + "]";
-		}
+	
+	private static class Worker {
 
-		public Dep(String string) {
-			letter = string;
+		private int counter = 0;
+		private String work;
+		public void start(String l) {
+			this.work = l;
+			this.counter = l.charAt(0) - 4;
+			
 		}
-		private String letter;
-		String next = "";
 		
-		@Override
-		public int compareTo(Dep o) {
-			return next.compareTo(o.next);
+		public boolean tick() {
+			counter--;
+			return counter == 0;
 		}
-
 	}
 	
-	
-	
+	private static class Dispatcher {
+		private List<Worker> worker = new ArrayList<>();
+		private int ticks = 0;
+		
+		public Dispatcher(int workerCount) {
+			for (int i = 0; i < workerCount; i++) {
+				worker.add(new Worker());
+			}
+		}
+		
+		private Worker getIdleWorker() {
+			for (Worker w : worker) {
+				if(w.counter == 0)
+					return w;
+			}
+			return null;
+		}
+		
+		public List<String> work(List<String> first) {
+			Iterator<String> iterator = first.iterator();
+			while (iterator.hasNext()) {
+				String next = iterator.next();
+				boolean alreadyQueued = false;
+				for (Worker w : worker) {
+					if (w.counter != 0 && w.work.equals(next)) {
+						alreadyQueued = true;
+					}
+				} 
+				
+				if(!alreadyQueued)
+				    getIdleWorker().start(next);
+			}
+
+			while (true) {
+				ticks++;
+				List<String> doneList = new ArrayList<>();
+				for (Worker w : worker) {
+					if (w.counter != 0) {
+						if (w.tick()) {
+							String result = w.work;
+							w.work = "";
+							doneList.add(result);
+						}
+					}
+				} 
+				if(!doneList.isEmpty()) {
+					return doneList;
+				}
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 		String[] lines = input.split("\\n");
 		Map<String, List<String>> inputDeps = new HashMap<>();
@@ -82,73 +132,6 @@ public class Day7 {
 		part2();
 	}
 	
-	private static class Worker {
-
-		private int counter = 0;
-		private String work;
-		public void start(String l) {
-			this.work = l;
-			this.counter = l.charAt(0) - 4;
-			
-		}
-		
-		public boolean tick() {
-			counter--;
-			return counter == 0;
-		}
-	}
-	
-	private static class Dispatcher {
-		private List<Worker> worker = new ArrayList<>();
-		private int ticks = 0;
-		
-		public Dispatcher(int workerCount) {
-			for (int i = 0; i < workerCount; i++) {
-				worker.add(new Worker());
-			}
-		}
-		
-		private Worker getIdleWorker() {
-			for (Worker w : worker) {
-				if(w.counter == 0)
-					return w;
-			}
-			return null;
-		}
-		
-		public String work(List<String> first) {
-			Iterator<String> iterator = first.iterator();
-			while (iterator.hasNext()) {
-				String next = iterator.next();
-				
-				boolean alreadyQueued = false;
-				for (Worker w : worker) {
-					if (w.counter != 0 && w.work.equals(next)) {
-
-						alreadyQueued = true;
-					}
-				} 
-				
-				if(!alreadyQueued)
-				    getIdleWorker().start(next);
-				
-
-			}
-
-			while (true) {
-				ticks++;
-				for (Worker w : worker) {
-					if (w.counter != 0) {
-						if (w.tick()) {
-							return w.work;
-						}
-					}
-				} 
-			}
-		}
-
-	}
-	
 	public static void part2() {
 		String[] lines = input.split("\\n");
 		Map<String, List<String>> inputDeps = new HashMap<>();
@@ -163,7 +146,6 @@ public class Day7 {
 		}
 
 		String result = "";
-		
 		Dispatcher dispatcher = new Dispatcher(5);
 		
 		while(inputDeps.size() != 0) {
@@ -177,17 +159,22 @@ public class Day7 {
 			System.out.println(first);
 
 			
-			String key = dispatcher.work(first);
-			result += key;
-			inputDeps.remove(key);
-			inputDeps.forEach( (k, v) -> {
-				v.remove(key);
-			});
+			List<String> doneJobs = dispatcher.work(first);
+			for (String key : doneJobs) {
+				
+				System.out.println("### " + key);
+				result += key;
+				inputDeps.remove(key);
+				inputDeps.forEach( (k, v) -> {
+					v.remove(key);
+				});
+			}
 		}
+		System.out.println(result);
 		System.out.println(dispatcher.ticks);	
 	}
 
-	private static final String input = 
+	public static final String input = 
 			"Step V must be finished before step H can begin.\n" + 
 			"Step U must be finished before step R can begin.\n" + 
 			"Step E must be finished before step D can begin.\n" + 
